@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Улучшение изображений — ML в браузере</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Улучшение изображений</h1>
+    <div style="text-align: center; margin-bottom: 16px;">
+      <span id="model-status" style="color: #ffab40;">Загрузка...</span>
+    </div>
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-zone-text">Перетащите изображение сюда</div>
+      <div class="drop-zone-hint">JPG, PNG, BMP, HEIC — до 15 Мп</div>
+      <input type="file" id="file-input" accept="image/*" hidden>
+    </div>
+    <div id="tasks"></div>
+  </div>
+
+  <template id="task-template">
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-name"></span>
+        <span class="task-status">ожидание</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+      <div class="progress-text">0%</div>
+      <div class="task-params"></div>
+      <div class="task-error"></div>
+      <img class="preview-img" alt="Результат">
+      <div class="buttons">
+        <button class="download-btn">Скачать</button>
+        <button class="cancel-btn">Отмена</button>
+      </div>
+    </div>
+  </template>
+
+  <script src="main.js"></script>
+</body>
+</html>
