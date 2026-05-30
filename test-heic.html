@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>HEIC Test</title></head>
+<body>
+  <h1>Тест HEIC</h1>
+  <input type="file" id="fileInput" accept=".heic">
+  <p id="status">Выберите HEIC-файл</p>
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@latest/dist/heic2any.min.js"></script>
+  <script>
+    document.getElementById('fileInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      document.getElementById('status').textContent = 'Конвертирую...';
+      const start = performance.now();
+      
+      try {
+        const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+        const time = (performance.now() - start).toFixed(1);
+        document.getElementById('status').textContent = `Готово за ${time} мс. Размер: ${(blob.size / 1024).toFixed(1)} КБ`;
+      } catch (err) {
+        document.getElementById('status').textContent = 'Ошибка: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
