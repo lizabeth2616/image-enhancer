@@ -1,4 +1,3 @@
-// main.js — финальная версия с полным API модулем
 
 class ImageEnhancer {
   constructor() {
