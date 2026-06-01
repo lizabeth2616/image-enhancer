@@ -1,3 +1,4 @@
+// main.js — финальная версия с полным API модулем
 
 class ImageEnhancer {
   constructor() {
@@ -19,9 +20,7 @@ class ImageEnhancer {
       error: null
     });
 
-    // Запускаем асинхронно
     this._process(taskId, blob);
-
     return taskId;
   }
 
@@ -77,7 +76,6 @@ class ImageEnhancer {
       let blob = file;
       if (file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic')) {
         this._update(taskId, 'decoding', 10);
-        const { default: heic2any } = await import('https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js');
         blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
       }
 
@@ -120,7 +118,7 @@ class ImageEnhancer {
       }
       const stdDev = Math.sqrt(variance / total);
 
-      // Подбор параметров (ИИ-логика)
+      // Подбор параметров
       let brightness = 100;
       let contrast = 100;
       let saturation = 100;
@@ -176,10 +174,32 @@ const tasksContainer = document.getElementById('tasks');
 const template = document.getElementById('task-template');
 const statusEl = document.getElementById('model-status');
 
-statusEl.textContent = ' Модель готова';
-statusEl.style.color = '#81c784';
-dropZone.style.opacity = '1';
-dropZone.style.pointerEvents = 'auto';
+// Ждём загрузки heic2any
+function waitForHeic2any() {
+  return new Promise(resolve => {
+    if (typeof heic2any !== 'undefined') {
+      resolve();
+      return;
+    }
+    const check = setInterval(() => {
+      if (typeof heic2any !== 'undefined') {
+        clearInterval(check);
+        resolve();
+      }
+    }, 100);
+  });
+}
+
+async function init() {
+  statusEl.textContent = 'Загрузка...';
+  await waitForHeic2any();
+  statusEl.textContent = ' Модель готова';
+  statusEl.style.color = '#81c784';
+  dropZone.style.opacity = '1';
+  dropZone.style.pointerEvents = 'auto';
+}
+
+init();
 
 // Drag & drop
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
