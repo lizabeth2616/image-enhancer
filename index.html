@@ -4,36 +4,67 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Улучшение изображений — ML в браузере</title>
+  
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
+  <!-- HEIC конвертер -->
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
-    <h1>Улучшение изображений</h1>
-    <div style="text-align: center; margin-bottom: 16px;">
-      <span id="model-status" style="color: #ffab40;">Загрузка...</span>
+    <h1>🎨 Улучшение изображений</h1>
+    <p class="subtitle">ML-модель в браузере • Яркость • Контраст • Цветность</p>
+    
+    <!-- Статус модели -->
+    <div class="model-status" id="model-status">
+      <span class="spinner"></span> Загрузка модели...
     </div>
+
+    <!-- Зона загрузки -->
     <div class="drop-zone" id="drop-zone">
-      <div class="drop-zone-text">Перетащите изображение сюда</div>
-      <div class="drop-zone-hint">JPG, PNG, BMP, HEIC — до 15 Мп</div>
-      <input type="file" id="file-input" accept="image/*" hidden>
+      <div class="drop-zone-content">
+        <span class="drop-icon">📁</span>
+        <span class="drop-text">Перетащите изображение сюда</span>
+        <span class="drop-hint">или нажмите для выбора файла</span>
+        <span class="drop-formats">JPG • PNG • BMP • HEIC — до 15 Мп</span>
+      </div>
+      <input type="file" id="file-input" accept="image/*,.heic" hidden>
     </div>
-    <div id="tasks"></div>
+
+    <!-- Список задач -->
+    <div class="tasks-container" id="tasks"></div>
   </div>
 
+  <!-- Шаблон карточки задачи -->
   <template id="task-template">
     <div class="task-card">
       <div class="task-header">
-        <span class="task-name"></span>
+        <div class="task-info">
+          <span class="task-icon">🖼️</span>
+          <span class="task-name"></span>
+        </div>
         <span class="task-status">ожидание</span>
       </div>
-      <div class="progress-bar"><div class="progress-fill"></div></div>
-      <div class="progress-text">0%</div>
+      
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <span class="progress-text">0%</span>
+      </div>
+
       <div class="task-params"></div>
       <div class="task-error"></div>
-      <img class="preview-img" alt="Результат">
-      <div class="buttons">
-        <button class="download-btn">Скачать</button>
-        <button class="cancel-btn">Отмена</button>
+
+      <div class="task-preview">
+        <img class="preview-img" alt="Результат обработки">
+      </div>
+
+      <div class="task-actions">
+        <button class="btn btn-download">💾 Скачать</button>
+        <button class="btn btn-cancel">✕ Отмена</button>
       </div>
     </div>
   </template>
