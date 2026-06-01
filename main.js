@@ -89,7 +89,7 @@ class ImageEnhancer {
 
       // Проверка размера
       const mp = (canvas.width * canvas.height) / 1_000_000;
-      if (mp > 15) throw new Error(`Слишком большое: ${mp.toFixed(1)} Мп (макс 15)`);
+      if (mp > 15) throw new Error('Слишком большое: ' + mp.toFixed(1) + ' Мп (макс 15)');
 
       this._update(taskId, 'analyzing', 30);
 
@@ -148,7 +148,7 @@ class ImageEnhancer {
       resultCanvas.width = canvas.width;
       resultCanvas.height = canvas.height;
       const resultCtx = resultCanvas.getContext('2d');
-      resultCtx.filter = `brightness(${params.brightness}%) contrast(${params.contrast}%) saturate(${params.saturation}%)`;
+      resultCtx.filter = 'brightness(' + params.brightness + '%) contrast(' + params.contrast + '%) saturate(' + params.saturation + '%)';
       resultCtx.drawImage(canvas, 0, 0);
 
       this._update(taskId, 'encoding', 90);
@@ -174,81 +174,62 @@ const tasksContainer = document.getElementById('tasks');
 const template = document.getElementById('task-template');
 const statusEl = document.getElementById('model-status');
 
-// Ждём загрузки heic2any
-function waitForHeic2any() {
-  return new Promise(resolve => {
-    if (typeof heic2any !== 'undefined') {
-      resolve();
-      return;
-    }
-    const check = setInterval(() => {
-      if (typeof heic2any !== 'undefined') {
-        clearInterval(check);
-        resolve();
-      }
-    }, 100);
-  });
-}
-
-async function init() {
-  statusEl.textContent = 'Загрузка...';
-  await waitForHeic2any();
-  statusEl.textContent = ' Модель готова';
+function init() {
+  statusEl.textContent = 'Модель готова';
   statusEl.style.color = '#81c784';
   dropZone.style.opacity = '1';
   dropZone.style.pointerEvents = 'auto';
 }
-
 init();
 
 // Drag & drop
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('active'));
-dropZone.addEventListener('drop', e => {
+dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('active'); });
+dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('active'); });
+dropZone.addEventListener('drop', function(e) {
   e.preventDefault();
   dropZone.classList.remove('active');
-  const file = e.dataTransfer.files[0];
+  var file = e.dataTransfer.files[0];
   if (file) {
-    const taskId = enhancer.enhance(file);
+    var taskId = enhancer.enhance(file);
     createCard(taskId, file.name);
   }
 });
-dropZone.addEventListener('click', () => fileInput.click());
-fileInput.addEventListener('change', () => {
-  const file = fileInput.files[0];
+dropZone.addEventListener('click', function() { fileInput.click(); });
+fileInput.addEventListener('change', function() {
+  var file = fileInput.files[0];
   if (file) {
-    const taskId = enhancer.enhance(file);
+    var taskId = enhancer.enhance(file);
     createCard(taskId, file.name);
   }
 });
 
 // Подписка на события
-enhancer.on('task-status-change', task => {
-  const card = document.querySelector(`[data-task-id="${task.id}"]`);
+enhancer.on('task-status-change', function(task) {
+  var card = document.querySelector('[data-task-id="' + task.id + '"]');
   if (!card) return;
 
-  const statusNames = {
+  var statusNames = {
     pending: 'ожидание', decoding: 'распаковка', analyzing: 'анализ',
     enhancing: 'улучшение', encoding: 'сохранение', completed: 'готово',
     failed: 'ошибка', aborted: 'отменено'
   };
 
-  const st = card.querySelector('.task-status');
+  var st = card.querySelector('.task-status');
   st.textContent = statusNames[task.status] || task.status;
   card.querySelector('.progress-fill').style.width = task.progress + '%';
   card.querySelector('.progress-text').textContent = task.progress + '%';
 
   if (task.status === 'completed') {
     st.classList.add('completed');
-    card.querySelector('.download-btn').style.display = 'inline-block';
-    const url = URL.createObjectURL(task.blob);
+    card.querySelector('.btn-download').style.display = 'inline-block';
+    var url = URL.createObjectURL(task.blob);
     card.querySelector('.preview-img').src = url;
     card.querySelector('.preview-img').style.display = 'block';
     card.querySelector('.task-params').textContent =
-      `Яркость: ${task.params.brightness}% | Контраст: ${task.params.contrast}% | Цветность: ${task.params.saturation}%`;
+      'Яркость: ' + task.params.brightness + '% | Контраст: ' + task.params.contrast + '% | Цветность: ' + task.params.saturation + '%';
     card.querySelector('.task-params').style.display = 'block';
-    card.querySelector('.download-btn').onclick = () => {
-      const a = document.createElement('a');
+    card.querySelector('.btn-download').onclick = function() {
+      var a = document.createElement('a');
       a.href = url;
       a.download = 'enhanced_' + card.querySelector('.task-name').textContent;
       a.click();
@@ -265,9 +246,9 @@ enhancer.on('task-status-change', task => {
 });
 
 function createCard(taskId, fileName) {
-  const clone = template.content.cloneNode(true);
+  var clone = template.content.cloneNode(true);
   clone.querySelector('.task-card').setAttribute('data-task-id', taskId);
   clone.querySelector('.task-name').textContent = fileName;
-  clone.querySelector('.cancel-btn').addEventListener('click', () => enhancer.abort(taskId));
-  tasksContainer.prepend(clone);
+  clone.querySelector('.btn-cancel').addEventListener('click', function() { enhancer.abort(taskId); });
+  tasksContainer.appendChild(clone);
 }
